@@ -1,0 +1,55 @@
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX dbc: <http://dbpedia.org/resource/Category:>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?country ?label 
+       (GROUP_CONCAT(DISTINCT UCASE(?cleanedLanguage) ; SEPARATOR="|") AS ?languages)
+WHERE {
+  {
+    ?country rdf:type dbo:Country ;
+             dcterms:subject dbc:Countries_in_Europe ;
+             rdfs:label ?label .
+    FILTER (lang(?label) = "en" && STRSTARTS(?label, "A"))
+    
+    {
+      ?country dbo:language ?languageNode .
+      ?languageNode rdfs:label ?langLabel .
+      FILTER (lang(?langLabel) = "en")
+      BIND(REPLACE(REPLACE(STR(?langLabel), " language", ""), " Language", "") AS ?cleanedLanguage)
+    }
+    UNION
+    {
+      ?country dbo:officialLanguage ?officialLanguageNode .
+      ?officialLanguageNode rdfs:label ?officialLangLabel .
+      FILTER (lang(?officialLangLabel) = "en")
+      BIND(REPLACE(REPLACE(STR(?officialLangLabel), " language", ""), " Language", "") AS ?cleanedLanguage)
+    }
+  }
+  
+  UNION
+  
+  {
+    ?country rdf:type dbo:Country ;
+             dcterms:subject dbc:Countries_in_North_America ;
+             rdfs:label ?label .
+    FILTER (lang(?label) = "en" && STRSTARTS(?label, "A"))
+    
+    {
+      ?country dbo:language ?languageNode .
+      ?languageNode rdfs:label ?langLabel .
+      FILTER (lang(?langLabel) = "en")
+      BIND(REPLACE(REPLACE(STR(?langLabel), " language", ""), " Language", "") AS ?cleanedLanguage)
+    }
+    UNION
+    {
+      ?country dbo:officialLanguage ?officialLanguageNode .
+      ?officialLanguageNode rdfs:label ?officialLangLabel .
+      FILTER (lang(?officialLangLabel) = "en")
+      BIND(REPLACE(REPLACE(STR(?officialLangLabel), " language", ""), " Language", "") AS ?cleanedLanguage)
+    }
+  }
+}
+GROUP BY ?country ?label
+ORDER BY ?label
