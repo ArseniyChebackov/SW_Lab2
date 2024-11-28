@@ -7,5 +7,9 @@ WHERE {
   ?country rdf:type dbo:Country ;
            dbo:populationTotal ?population ;
            dcterms:subject dbc:Eastern_European_countries .
+  FILTER (?country != <http://dbpedia.org/resource/Azerbaijan> && 
+          ?country != <http://dbpedia.org/resource/Kazakhstan>)
+  # Ensure only the first population value is used
+  FILTER NOT EXISTS { ?country dbo:populationTotal ?otherPopulation. FILTER (?otherPopulation != ?population) }
 }
-ORDER BY DESC(?population_str)
+ORDER BY DESC(xsd:integer(?population))
